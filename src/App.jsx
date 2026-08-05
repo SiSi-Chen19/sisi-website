@@ -223,6 +223,15 @@ const nearestAirports = {
   廊坊: { airport: '北京大兴国际机场', route: '廊坊站 → 大兴机场线/城际 → 北京大兴机场', note: '廊坊无民航机场，优先北京大兴' },
 }
 
+const provinceHubAirports = {
+  河北: '石家庄正定国际机场', 山西: '太原武宿国际机场', 辽宁: '沈阳桃仙国际机场', 吉林: '长春龙嘉国际机场', 黑龙江: '哈尔滨太平国际机场',
+  江苏: '南京禄口国际机场', 浙江: '杭州萧山国际机场', 安徽: '合肥新桥国际机场', 福建: '福州长乐国际机场', 江西: '南昌昌北国际机场',
+  山东: '济南遥墙国际机场', 河南: '郑州新郑国际机场', 湖北: '武汉天河国际机场', 湖南: '长沙黄花国际机场', 广东: '广州白云国际机场',
+  海南: '海口美兰国际机场', 四川: '成都天府国际机场', 贵州: '贵阳龙洞堡国际机场', 云南: '昆明长水国际机场', 陕西: '西安咸阳国际机场',
+  甘肃: '兰州中川国际机场', 青海: '西宁曹家堡国际机场', 内蒙古: '呼和浩特白塔国际机场', 广西: '南宁吴圩国际机场', 西藏: '拉萨贡嘎机场',
+  宁夏: '银川河东国际机场', 新疆: '乌鲁木齐地窝堡国际机场', 天津: '天津滨海国际机场', 香港: '香港国际机场', 澳门: '澳门国际机场',
+}
+
 const stations = {
   上海: '上海虹桥站', 北京: '北京南站', 广州: '广州南站', 深圳: '深圳北站', 珠海: '珠海站', 杭州: '杭州东站', 宁波: '宁波站',
   温州: '温州南站', 南京: '南京南站', 苏州: '苏州北站', 无锡: '无锡东站', 成都: '成都东站', 绵阳: '绵阳站', 武汉: '武汉站',
@@ -235,6 +244,24 @@ const cityCodes = {
   成都: 'CTU', 重庆: 'CKG', 武汉: 'WUH', 厦门: 'XMN', 福州: 'FOC', 西安: 'SIA', 长沙: 'CSX', 青岛: 'TAO', 昆明: 'KMG',
   大理: 'DLU', 丽江: 'LJG', 三亚: 'SYX', 海口: 'HAK', 东京: 'TYO', 横滨: 'TYO', 京都: 'KIX', 大阪: 'OSA', 札幌: 'SPK', 小樽: 'SPK', 福冈: 'FUK',
   首尔: 'SEL', 釜山: 'PUS', 济州岛: 'CJU',
+  天津: 'TSN', 石家庄: 'SJW', 太原: 'TYN', 沈阳: 'SHE', 大连: 'DLC', 长春: 'CGQ', 哈尔滨: 'HRB', 合肥: 'HFE', 南昌: 'KHN',
+  济南: 'TNA', 郑州: 'CGO', 贵阳: 'KWE', 兰州: 'LHW', 西宁: 'XNN', 呼和浩特: 'HET', 南宁: 'NNG', 拉萨: 'LXA', 银川: 'INC',
+  乌鲁木齐: 'URC', 香港: 'HKG', 澳门: 'MFM', 名古屋: 'NGO', 冲绳: 'OKA', 广岛: 'HIJ', 熊本: 'KMJ', 长崎: 'NGS',
+  仁川: 'SEL', 大邱: 'TAE', 光州: 'KWJ',
+}
+
+const airportSearchCities = {
+  上海虹桥国际机场: '上海', 上海浦东国际机场: '上海', 北京首都国际机场: '北京', 北京大兴国际机场: '北京', 广州白云国际机场: '广州',
+  深圳宝安国际机场: '深圳', 珠海金湾机场: '珠海', 杭州萧山国际机场: '杭州', 宁波栎社国际机场: '宁波', 温州龙湾国际机场: '温州',
+  南京禄口国际机场: '南京', 苏南硕放国际机场: '无锡', 成都天府国际机场: '成都', 绵阳南郊机场: '绵阳', 武汉天河国际机场: '武汉',
+  厦门高崎国际机场: '厦门', 福州长乐国际机场: '福州', 西安咸阳国际机场: '西安', 长沙黄花国际机场: '长沙', 青岛胶东国际机场: '青岛',
+  郑州新郑国际机场: '郑州', 昆明长水国际机场: '昆明', 大理凤仪机场: '大理', 丽江三义机场: '丽江', 三亚凤凰国际机场: '三亚',
+  海口美兰国际机场: '海口', 石家庄正定国际机场: '石家庄', 太原武宿国际机场: '太原', 沈阳桃仙国际机场: '沈阳',
+  长春龙嘉国际机场: '长春', 哈尔滨太平国际机场: '哈尔滨', 合肥新桥国际机场: '合肥', 南昌昌北国际机场: '南昌',
+  济南遥墙国际机场: '济南', 贵阳龙洞堡国际机场: '贵阳', 兰州中川国际机场: '兰州', 西宁曹家堡国际机场: '西宁',
+  呼和浩特白塔国际机场: '呼和浩特', 南宁吴圩国际机场: '南宁', 拉萨贡嘎机场: '拉萨', 银川河东国际机场: '银川',
+  乌鲁木齐地窝堡国际机场: '乌鲁木齐', 天津滨海国际机场: '天津', 香港国际机场: '香港', 澳门国际机场: '澳门',
+  东京羽田机场: '东京', 关西国际机场: '大阪', 新千岁机场: '札幌', 福冈机场: '福冈', 仁川国际机场: '首尔', 金海国际机场: '釜山', 济州国际机场: '济州岛',
 }
 
 const transportModes = [
@@ -483,6 +510,15 @@ function getNearestAirport(city) {
       note: '该城市有可用机场，出发前仍建议按航班价格比较同区域机场',
     }
   }
+  const province = Object.entries(originRegions).find(([, cities]) => cities.includes(city))?.[0]
+  const hubAirport = provinceHubAirports[province]
+  if (hubAirport) {
+    return {
+      airport: hubAirport,
+      route: `${city} → 高铁/城际/机场巴士 → ${hubAirport}`,
+      note: `${city}暂未收录常用民航机场，优先接驳到${province}省域枢纽机场`,
+    }
+  }
   return {
     airport: '最近枢纽机场',
     route: `${city} → 高铁/城际 → 最近枢纽机场`,
@@ -490,27 +526,32 @@ function getNearestAirport(city) {
   }
 }
 
+function getAirportSearchCity(airport, fallbackCity) {
+  return airportSearchCities[airport] || fallbackCity
+}
+
 function transportLabel(mode) {
   return transportModes.find((item) => item.id === mode)?.label || '飞机'
 }
 
 function buildCtripTransportLink(item, trip) {
-  const fromCity = item.fromCity || trip.originCity
-  const fromCode = (cityCodes[fromCity] || fromCity).toLowerCase()
-  const toCode = (cityCodes[item.targetCity] || item.targetCity).toLowerCase()
+  const fromCity = item.ctripFromCity || item.fromCity || trip.originCity
+  const toCity = item.ctripToCity || item.targetCity
+  const fromCode = cityCodes[fromCity] || fromCity
+  const toCode = cityCodes[toCity] || toCity
   const from = encodeURIComponent(fromCity)
-  const to = encodeURIComponent(item.targetCity)
+  const to = encodeURIComponent(toCity)
   const date = item.date || trip.startDate
-  if (item.type === 'flight' || item.type === 'combo') return `https://flights.ctrip.com/online/list/oneway-${fromCode}-${toCode}?depdate=${date}&cabin=y_s&adult=1&child=0&infant=0&search=${from}-${to}-${date}`
+  if (item.type === 'flight' || item.type === 'combo') return `https://flights.ctrip.com/online/list/oneway-${fromCode}-${toCode}?depdate=${date}&cabin=y_s&adult=1&child=0&infant=0&from=${from}&to=${to}&ddate=${date}&dcity=${fromCode}&acity=${toCode}`
   return `https://trains.ctrip.com/webapp/train/list?ticketType=0&dStation=${from}&aStation=${to}&dDate=${date}`
 }
 
 function buildCtripLegLink(fromCity, toCity, date, type = 'train') {
   const from = encodeURIComponent(fromCity)
   const to = encodeURIComponent(toCity)
-  const fromCode = (cityCodes[fromCity] || fromCity).toLowerCase()
-  const toCode = (cityCodes[toCity] || toCity).toLowerCase()
-  if (type === 'flight') return `https://flights.ctrip.com/online/list/oneway-${fromCode}-${toCode}?depdate=${date}&cabin=y_s&adult=1&child=0&infant=0&search=${from}-${to}-${date}`
+  const fromCode = cityCodes[fromCity] || fromCity
+  const toCode = cityCodes[toCity] || toCity
+  if (type === 'flight') return `https://flights.ctrip.com/online/list/oneway-${fromCode}-${toCode}?depdate=${date}&cabin=y_s&adult=1&child=0&infant=0&from=${from}&to=${to}&ddate=${date}&dcity=${fromCode}&acity=${toCode}`
   return `https://trains.ctrip.com/webapp/train/list?ticketType=0&dStation=${from}&aStation=${to}&dDate=${date}`
 }
 
@@ -555,6 +596,7 @@ function buildTransport(trip, destinations) {
   const seed = hashNumber(`${trip.originCity}${targetCity}${trip.startDate}${trip.transportMode}`)
   const originAirportInfo = getNearestAirport(trip.originCity)
   const originAirport = originAirportInfo.airport
+  const originFlightCity = getAirportSearchCity(originAirport, trip.originCity)
   const originStation = stations[trip.originCity] || `${trip.originCity}站`
   const returnDate = addDays(trip.startDate, trip.days)
   const domestic = trip.region === '国内'
@@ -568,17 +610,22 @@ function buildTransport(trip, destinations) {
   if (!domestic && mode !== 'plane') {
     const gatewayStation = mode === 'metro' ? `${trip.originCity}市区地铁站` : originStation
     const gatewayAirport = seed % 2 && trip.originCity === '上海' ? '上海浦东国际机场' : originAirport
+    const gatewayFlightCity = getAirportSearchCity(gatewayAirport, originFlightCity)
+    const destinationFlightCity = getAirportSearchCity(data.airport, targetCity)
+    const returnFlightCity = getAirportSearchCity(returnData.airport, returnCity)
     const comboLabel = mode === 'highspeed' ? '高铁接驳' : mode === 'train' ? '火车接驳' : '地铁/城际接驳'
     return [
-      { ...base, badge: '去程最低花销', type: 'combo', icon: mode === 'metro' ? TramFront : TrainFront, number: '携程实时查询', date: trip.startDate, depart: trip.startDate, arrive: '按实时结果', duration: '按实时结果', from: gatewayStation, to: data.airport, note: `${comboLabel} + 国际航班 · 托运行李额以票规为准`, direct: '打开后按价格排序', via: `${originAirportInfo.route} → ${data.airport}`, accessLink: buildGoogleDirectionsLink(trip.originCity, gatewayAirport), accessLabel: '出发地到机场路线' },
-      { ...base, badge: '返程查询', type: 'flight', icon: Plane, number: '返程实时查询', date: returnDate, fromCity: returnCity, targetCity: trip.originCity, depart: returnDate, arrive: '按实时结果', duration: '按实时结果', from: returnData.airport || `${returnCity}机场`, to: originAirport, note: '返程国际航班 · 行李额以票规为准', direct: '打开后按价格排序' },
+      { ...base, badge: '去程最低花销', type: 'combo', icon: mode === 'metro' ? TramFront : TrainFront, number: '携程实时查询', date: trip.startDate, depart: trip.startDate, arrive: '按实时结果', duration: '按实时结果', from: gatewayStation, to: data.airport, note: `${comboLabel} + 国际航班 · 托运行李额以票规为准`, direct: '打开后按价格排序', via: `${originAirportInfo.route} → ${data.airport}`, accessLink: buildGoogleDirectionsLink(trip.originCity, gatewayAirport), accessLabel: '出发地到机场路线', ctripFromCity: gatewayFlightCity, ctripToCity: destinationFlightCity },
+      { ...base, badge: '返程最低花销', type: 'flight', icon: Plane, number: '返程实时查询', date: returnDate, fromCity: returnCity, targetCity: trip.originCity, depart: returnDate, arrive: '按实时结果', duration: '按实时结果', from: returnData.airport || `${returnCity}机场`, to: originAirport, note: '返程国际航班 · 行李额以票规为准', direct: '打开后按价格排序', accessLink: buildGoogleDirectionsLink(originAirport, trip.originCity), accessLabel: '机场回出发地路线', ctripFromCity: returnFlightCity, ctripToCity: originFlightCity },
     ]
   }
 
   if (mode === 'plane' || !domestic) {
+    const destinationFlightCity = getAirportSearchCity(data.airport, targetCity)
+    const returnFlightCity = getAirportSearchCity(returnData.airport, returnCity)
     return [
-      { ...base, badge: '去程最低花销', type: 'flight', icon: Plane, number: '携程实时查询', date: trip.startDate, depart: trip.startDate, arrive: '按实时结果', duration: '按实时结果', from: originAirport, to: data.airport, note: `${originAirportInfo.note} · 行李额以票规为准`, direct: '打开后按价格排序', accessLink: buildGoogleDirectionsLink(trip.originCity, originAirport), accessLabel: '出发地到机场路线', via: originAirportInfo.route },
-      { ...base, badge: '返程查询', type: 'flight', icon: Plane, number: '返程实时查询', date: returnDate, fromCity: returnCity, targetCity: trip.originCity, depart: returnDate, arrive: '按实时结果', duration: '按实时结果', from: returnData.airport || `${returnCity}机场`, to: originAirport, note: '返程航班 · 行李额以票规为准', direct: '打开后按价格排序' },
+      { ...base, badge: '去程最低花销', type: 'flight', icon: Plane, number: '携程实时查询', date: trip.startDate, depart: trip.startDate, arrive: '按实时结果', duration: '按实时结果', from: originAirport, to: data.airport, note: `${originAirportInfo.note} · 行李额以票规为准`, direct: '打开后按价格排序', accessLink: buildGoogleDirectionsLink(trip.originCity, originAirport), accessLabel: '出发地到机场路线', via: originAirportInfo.route, ctripFromCity: originFlightCity, ctripToCity: destinationFlightCity },
+      { ...base, badge: '返程最低花销', type: 'flight', icon: Plane, number: '返程实时查询', date: returnDate, fromCity: returnCity, targetCity: trip.originCity, depart: returnDate, arrive: '按实时结果', duration: '按实时结果', from: returnData.airport || `${returnCity}机场`, to: originAirport, note: '返程航班 · 行李额以票规为准', direct: '打开后按价格排序', accessLink: buildGoogleDirectionsLink(originAirport, trip.originCity), accessLabel: '机场回出发地路线', ctripFromCity: returnFlightCity, ctripToCity: originFlightCity },
     ]
   }
 
@@ -749,13 +796,11 @@ function Recommendation({ profile, trip, onRestart, onEdit }) {
           <h1>{profile.name} 的<br /><em>{destinations[0]}</em>旅行计划</h1>
           <p>{relationCopy}<br />从 {trip.originCity} 出发的 {trip.days} 天，连续去 {destinationText}，少走路，也少走回头路。</p>
           <div className="trip-facts"><span><CalendarDays size={16} />{trip.startDate}</span><span><MapPin size={16} />{trip.originCity} → {destinationText}</span><span><TrainFront size={16} />优先 {transportLabel(trip.transportMode)}</span><span><BedDouble size={16} />¥{trip.budget}/晚</span></div>
-        </div>
-        <div className="result-art">
-          <div className="route-orb" aria-hidden="true">
-            <span>{destinations.length}</span>
-            <i />
+          <div className="result-signal-grid" aria-label="计划摘要">
+            <span><strong>{destinations.length}</strong>目的地</span>
+            <span><strong>{trip.days}</strong>旅行天数</span>
+            <span><strong>{trip.arrivalTime}</strong>到达后开玩</span>
           </div>
-          <div className="result-stamp"><span>ccc recommends</span><strong>{transportLabel(trip.transportMode)} · {trip.arrivalTime}</strong></div>
         </div>
       </section>
 
@@ -795,7 +840,7 @@ function Recommendation({ profile, trip, onRestart, onEdit }) {
               return <article className="transport-card" key={item.badge}>
                 <div className="transport-top"><span className="recommend-badge">{item.badge}</span><Icon size={23} /></div>
                 <div className="transport-number">{item.number}<small>{item.note}</small></div>
-                <p className="query-note">查询条件：{item.fromCity || trip.originCity} → {item.targetCity} · {item.date || trip.startDate}</p>
+                <p className="query-note">携程预填：{item.ctripFromCity || item.fromCity || trip.originCity} → {item.ctripToCity || item.targetCity} · {item.date || trip.startDate}</p>
                 <div className="time-line"><div><strong>{item.depart}</strong><span>{item.from}</span></div><div className="duration"><span>{item.duration}</span><i /><small>{item.direct}</small></div><div><strong>{item.arrive}</strong><span>{item.to}</span></div></div>
                 {item.via && <p className="baggage-note">组合路线：{item.via}</p>}
                 {(item.type === 'flight' || item.type === 'combo') && <p className="baggage-note">托运行李额、航班号、退改签和实时票价请以携程查询结果为准。</p>}
