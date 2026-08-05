@@ -30,8 +30,6 @@ import {
 } from 'lucide-react'
 import ClickSpark from './ClickSpark'
 import CurvedLoop from './CurvedLoop'
-import ElasticMesh from './ElasticMesh'
-import GradientWaves from './GradientWaves'
 import SplitText from './SplitText'
 
 const originRegions = {
@@ -354,57 +352,12 @@ function IconButton({ label, children, type = 'button', ...props }) {
   return <button type={type} className="icon-button" aria-label={label} title={label} {...props}>{children}</button>
 }
 
-function ElasticCursor() {
-  const cursorRef = useRef(null)
-
-  useEffect(() => {
-    const cursor = cursorRef.current
-    if (!cursor) return undefined
-    let targetX = window.innerWidth / 2
-    let targetY = window.innerHeight / 2
-    let x = targetX
-    let y = targetY
-    let raf = 0
-
-    const move = (event) => {
-      targetX = event.clientX
-      targetY = event.clientY
-    }
-
-    const frame = () => {
-      x += (targetX - x) * 0.16
-      y += (targetY - y) * 0.16
-      const dx = targetX - x
-      const dy = targetY - y
-      const stretch = Math.min(1.28, 1 + Math.hypot(dx, dy) / 900)
-      const rotate = Math.atan2(dy, dx) * (180 / Math.PI)
-      cursor.style.transform = `translate3d(${x - 52}px, ${y - 52}px, 0) rotate(${rotate}deg) scaleX(${stretch})`
-      raf = requestAnimationFrame(frame)
-    }
-
-    window.addEventListener('pointermove', move, { passive: true })
-    raf = requestAnimationFrame(frame)
-
-    return () => {
-      window.removeEventListener('pointermove', move)
-      cancelAnimationFrame(raf)
-    }
-  }, [])
-
-  return (
-    <div className="elastic-cursor" ref={cursorRef} aria-hidden="true">
-      <ElasticMesh color1="#f17fa3" color2="#7ecce4" gridOpacity={0.28} borderRadius={999} />
-    </div>
-  )
-}
-
 function Welcome({ onStart, onWorld }) {
   const background = useMemo(() => randomHomepageBackgrounds[Math.floor(Math.random() * randomHomepageBackgrounds.length)], [])
 
   return (
     <main className="welcome-page" style={{ '--welcome-bg': `url(${background})` }}>
       <div className="welcome-photo-bg" />
-      <GradientWaves className="welcome-waves" horizonColor="#7ecce4" waveColor="#f17fa3" crestColor="#fff4d0" opacity={0.3} speed={0.22} amplitude={1.35} waveScale={0.52} turbulence={12} />
       <div className="welcome-wash" />
       <header className="welcome-nav shell"><Brand inverse /><span className="edition">PERSONAL EDITION · 01</span></header>
       <section className="welcome-content shell">
@@ -420,12 +373,6 @@ function Welcome({ onStart, onWorld }) {
               ccc到过的地方 <Globe2 size={18} />
             </button>
           </div>
-        </div>
-        <div className="art-stack" aria-hidden="true">
-          <figure className="art-card art-card--back"><img src="/assets/blue.jpg" alt="" /></figure>
-          <figure className="art-card art-card--mid"><img src="/assets/pink.jpg" alt="" /></figure>
-          <figure className="art-card art-card--front"><img src="/assets/title.jpg" alt="" /></figure>
-          <div className="glass-ticket"><span>DESTINATION</span><strong>Somewhere lovely</strong><small>planned with care · 2026</small></div>
         </div>
       </section>
       <div className="scroll-cue"><span>SCROLL INTO THE STORY</span><span className="scroll-line" /></div>
@@ -1153,7 +1100,6 @@ export default function App() {
       extraScale={1.12}
     >
       <div className="app">
-        <ElasticCursor />
         {screen === 'welcome' && <Welcome onStart={() => setScreen('profile')} onWorld={() => setScreen('world')} />}
         {screen === 'world' && <CccWorld onBack={() => setScreen('welcome')} />}
         {screen === 'profile' && <Profile profile={profile} setProfile={setProfile} onBack={() => setScreen('welcome')} onNext={() => setScreen('planner')} />}
