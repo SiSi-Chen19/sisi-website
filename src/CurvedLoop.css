@@ -1,4 +1,6 @@
 .curved-loop-jacket {
+  position: relative;
+  z-index: 1;
   display: flex;
   width: 100%;
   min-height: 220px;

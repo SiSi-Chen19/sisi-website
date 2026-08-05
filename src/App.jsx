@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowLeft,
   ArrowRight,
@@ -10,8 +10,10 @@ import {
   Clock3,
   Coffee,
   ExternalLink,
+  Globe2,
   Heart,
   Hotel,
+  ImagePlus,
   MapPin,
   Minus,
   Navigation,
@@ -200,6 +202,27 @@ const airports = {
   东京: '东京羽田机场', 横滨: '东京羽田机场', 京都: '关西国际机场', 大阪: '关西国际机场', 小樽: '新千岁机场', 首尔: '仁川国际机场', 釜山: '金海国际机场', 济州岛: '济州国际机场',
 }
 
+const nearestAirports = {
+  苏州: { airport: '上海虹桥国际机场', route: '苏州站 → 上海虹桥站 → 上海虹桥国际机场', note: '苏州无民航机场，优先高铁到上海虹桥接驳' },
+  无锡: { airport: '苏南硕放国际机场', route: '无锡市区 → 地铁/机场巴士 → 苏南硕放国际机场', note: '优先本地机场；国际航班不足时可改上海浦东/虹桥' },
+  嘉兴: { airport: '杭州萧山国际机场', route: '嘉兴南站 → 杭州东站 → 机场快线/地铁 → 萧山机场', note: '嘉兴无民航机场，杭州萧山通常更顺路' },
+  湖州: { airport: '杭州萧山国际机场', route: '湖州站 → 杭州东站 → 地铁/机场大巴 → 萧山机场', note: '湖州无民航机场，优先杭州萧山' },
+  绍兴: { airport: '杭州萧山国际机场', route: '绍兴北站 → 杭州南/杭州东 → 地铁 7 号线 → 萧山机场', note: '绍兴无民航机场，萧山机场距离更近' },
+  金华: { airport: '义乌机场', route: '金华站 → 义乌站 → 出租/公交 → 义乌机场', note: '若无合适航班，再查杭州萧山' },
+  衢州: { airport: '衢州机场', route: '衢州市区 → 公交/出租 → 衢州机场', note: '优先本地机场，航线不足时查杭州萧山' },
+  舟山: { airport: '舟山普陀山机场', route: '舟山市区 → 机场巴士/出租 → 普陀山机场', note: '优先本地机场' },
+  台州: { airport: '台州路桥机场', route: '台州市区 → 机场巴士/公交 → 台州路桥机场', note: '优先本地机场' },
+  丽水: { airport: '温州龙湾国际机场', route: '丽水站 → 温州南站 → S1/机场巴士 → 温州龙湾机场', note: '丽水无常用民航机场，优先温州龙湾' },
+  佛山: { airport: '广州白云国际机场', route: '佛山市区 → 广佛线/广州地铁 → 机场北/机场南', note: '佛山机场航线较少，优先广州白云' },
+  东莞: { airport: '深圳宝安国际机场', route: '东莞市区 → 穗深城际/地铁 → 深圳宝安机场', note: '东莞无民航机场，优先深圳宝安' },
+  中山: { airport: '珠海金湾机场', route: '中山市区 → 城际/巴士 → 珠海金湾机场', note: '也可按航班价格比较广州白云、深圳宝安' },
+  江门: { airport: '珠海金湾机场', route: '江门站 → 珠海站/机场巴士 → 珠海金湾机场', note: '优先珠海金湾' },
+  惠州: { airport: '惠州平潭机场', route: '惠州市区 → 机场快线/出租 → 惠州平潭机场', note: '航线不足时查深圳宝安' },
+  张家口: { airport: '张家口宁远机场', route: '张家口市区 → 公交/出租 → 宁远机场', note: '国际航班不足时优先北京首都/大兴' },
+  保定: { airport: '北京大兴国际机场', route: '保定东站 → 北京大兴机场站 → 航站楼', note: '保定无民航机场，优先北京大兴' },
+  廊坊: { airport: '北京大兴国际机场', route: '廊坊站 → 大兴机场线/城际 → 北京大兴机场', note: '廊坊无民航机场，优先北京大兴' },
+}
+
 const stations = {
   上海: '上海虹桥站', 北京: '北京南站', 广州: '广州南站', 深圳: '深圳北站', 珠海: '珠海站', 杭州: '杭州东站', 宁波: '宁波站',
   温州: '温州南站', 南京: '南京南站', 苏州: '苏州北站', 无锡: '无锡东站', 成都: '成都东站', 绵阳: '绵阳站', 武汉: '武汉站',
@@ -227,6 +250,14 @@ const travelStyles = [
 ]
 
 const constellations = ['白羊座', '金牛座', '双子座', '巨蟹座', '狮子座', '处女座', '天秤座', '天蝎座', '射手座', '摩羯座', '水瓶座', '双鱼座']
+const travelRoles = ['点点', '饭田鱼', '蒸馍', '张葛']
+const cccVisitedPlaces = [
+  { id: 'shanghai', name: '上海', x: 77, y: 43, globeX: 72, globeY: 42, date: '2024 春天', roles: ['点点', '饭田鱼'], memory: '一起在街区散步，把晚风和甜点都放进行程。' },
+  { id: 'hangzhou', name: '杭州', x: 76, y: 45, globeX: 70, globeY: 45, date: '2024 夏天', roles: ['点点', '蒸馍'], memory: '湖边慢慢走，路线被阳光切成很柔软的几段。' },
+  { id: 'tokyo', name: '东京', x: 84, y: 41, globeX: 80, globeY: 40, date: '2025 冬天', roles: ['饭田鱼', '张葛'], memory: '霓虹、地铁、便利店和一张张没有计划但很开心的照片。' },
+  { id: 'seoul', name: '首尔', x: 81, y: 39, globeX: 77, globeY: 38, date: '2025 秋天', roles: ['蒸馍', '张葛'], memory: '把美食和街拍排进同一条线，走得很顺。' },
+  { id: 'paris', name: '巴黎', x: 48, y: 36, globeX: 47, globeY: 36, date: '未来想去', roles: ['点点', '饭田鱼', '蒸馍', '张葛'], memory: '先点亮在地图上，等素材来了再补照片。' },
+]
 const domesticCodes = new Set(destinationGroups.国内)
 const today = new Date().toISOString().split('T')[0]
 
@@ -243,7 +274,7 @@ function IconButton({ label, children, type = 'button', ...props }) {
   return <button type={type} className="icon-button" aria-label={label} title={label} {...props}>{children}</button>
 }
 
-function Welcome({ onStart }) {
+function Welcome({ onStart, onWorld }) {
   return (
     <main className="welcome-page">
       <video className="welcome-video" autoPlay muted loop playsInline poster="/assets/miracle.jpg">
@@ -256,9 +287,14 @@ function Welcome({ onStart }) {
           <p className="eyebrow">A LITTLE TRIP, MADE JUST FOR YOU</p>
           <h1>ccc's<br />travelplan</h1>
           <p className="welcome-note">把目的地、心情和预算交给我。<br />剩下的路，会被轻轻排好。</p>
-          <button className="primary-button primary-button--light" onClick={onStart}>
-            开始一段旅程 <ArrowRight size={18} />
-          </button>
+          <div className="welcome-actions">
+            <button className="primary-button primary-button--light" onClick={onStart}>
+              和ccc一起去旅行 <ArrowRight size={18} />
+            </button>
+            <button className="outline-button outline-button--light" onClick={onWorld}>
+              ccc到过的地方 <Globe2 size={18} />
+            </button>
+          </div>
         </div>
         <div className="art-stack" aria-hidden="true">
           <figure className="art-card art-card--back"><img src="/assets/blue.jpg" alt="" /></figure>
@@ -370,6 +406,7 @@ function Planner({ profile, trip, setTrip, onBack, onGenerate }) {
             <div className="section-title"><CalendarDays size={20} /><div><span>WHEN</span><h3>你想拥有多久美好的旅程？</h3></div></div>
             <div className="date-row">
               <label><span>出发日期</span><input type="date" min={today} value={trip.startDate} onChange={(e) => setTrip({ ...trip, startDate: e.target.value })} /></label>
+              <label><span>预计到达第一站时间</span><input type="time" value={trip.arrivalTime} onChange={(e) => setTrip({ ...trip, arrivalTime: e.target.value })} /></label>
               <label><span>旅行天数</span><Stepper value={trip.days} onChange={(days) => setTrip({ ...trip, days })} min={2} max={14} /></label>
             </div>
           </section>
@@ -437,6 +474,22 @@ function getDestinationData(city) {
   }
 }
 
+function getNearestAirport(city) {
+  if (nearestAirports[city]) return nearestAirports[city]
+  if (airports[city]) {
+    return {
+      airport: airports[city],
+      route: `${city}市区 → 公共交通/机场快线 → ${airports[city]}`,
+      note: '该城市有可用机场，出发前仍建议按航班价格比较同区域机场',
+    }
+  }
+  return {
+    airport: '最近枢纽机场',
+    route: `${city} → 高铁/城际 → 最近枢纽机场`,
+    note: '暂未收录本地机场，先按最近省会或高铁枢纽机场查询',
+  }
+}
+
 function transportLabel(mode) {
   return transportModes.find((item) => item.id === mode)?.label || '飞机'
 }
@@ -448,7 +501,7 @@ function buildCtripTransportLink(item, trip) {
   const from = encodeURIComponent(fromCity)
   const to = encodeURIComponent(item.targetCity)
   const date = item.date || trip.startDate
-  if (item.type === 'flight' || item.type === 'combo') return `https://flights.ctrip.com/online/list/oneway-${fromCode}-${toCode}?depdate=${date}&cabin=y_s&adult=1&child=0&infant=0`
+  if (item.type === 'flight' || item.type === 'combo') return `https://flights.ctrip.com/online/list/oneway-${fromCode}-${toCode}?depdate=${date}&cabin=y_s&adult=1&child=0&infant=0&search=${from}-${to}-${date}`
   return `https://trains.ctrip.com/webapp/train/list?ticketType=0&dStation=${from}&aStation=${to}&dDate=${date}`
 }
 
@@ -457,7 +510,7 @@ function buildCtripLegLink(fromCity, toCity, date, type = 'train') {
   const to = encodeURIComponent(toCity)
   const fromCode = (cityCodes[fromCity] || fromCity).toLowerCase()
   const toCode = (cityCodes[toCity] || toCity).toLowerCase()
-  if (type === 'flight') return `https://flights.ctrip.com/online/list/oneway-${fromCode}-${toCode}?depdate=${date}&cabin=y_s&adult=1&child=0&infant=0`
+  if (type === 'flight') return `https://flights.ctrip.com/online/list/oneway-${fromCode}-${toCode}?depdate=${date}&cabin=y_s&adult=1&child=0&infant=0&search=${from}-${to}-${date}`
   return `https://trains.ctrip.com/webapp/train/list?ticketType=0&dStation=${from}&aStation=${to}&dDate=${date}`
 }
 
@@ -500,7 +553,8 @@ function buildTransport(trip, destinations) {
   const data = getDestinationData(targetCity)
   const returnData = getDestinationData(returnCity)
   const seed = hashNumber(`${trip.originCity}${targetCity}${trip.startDate}${trip.transportMode}`)
-  const originAirport = airports[trip.originCity] || `${trip.originCity}机场`
+  const originAirportInfo = getNearestAirport(trip.originCity)
+  const originAirport = originAirportInfo.airport
   const originStation = stations[trip.originCity] || `${trip.originCity}站`
   const returnDate = addDays(trip.startDate, trip.days)
   const domestic = trip.region === '国内'
@@ -513,37 +567,37 @@ function buildTransport(trip, destinations) {
 
   if (!domestic && mode !== 'plane') {
     const gatewayStation = mode === 'metro' ? `${trip.originCity}市区地铁站` : originStation
-    const gatewayAirport = seed % 2 ? '上海浦东国际机场' : originAirport
+    const gatewayAirport = seed % 2 && trip.originCity === '上海' ? '上海浦东国际机场' : originAirport
     const comboLabel = mode === 'highspeed' ? '高铁接驳' : mode === 'train' ? '火车接驳' : '地铁/城际接驳'
     return [
-      { ...base, badge: '去程最低花销查询', type: 'combo', icon: mode === 'metro' ? TramFront : TrainFront, number: '携程实时查询', date: trip.startDate, depart: trip.startDate, arrive: '按实时结果', duration: '按实时结果', from: gatewayStation, to: data.airport, note: `${comboLabel} + 国际航班 · 含 20kg 托运行李额`, direct: '打开后按价格排序', via: `${gatewayStation} → ${gatewayAirport} → ${data.airport}` },
+      { ...base, badge: '去程最低花销', type: 'combo', icon: mode === 'metro' ? TramFront : TrainFront, number: '携程实时查询', date: trip.startDate, depart: trip.startDate, arrive: '按实时结果', duration: '按实时结果', from: gatewayStation, to: data.airport, note: `${comboLabel} + 国际航班 · 托运行李额以票规为准`, direct: '打开后按价格排序', via: `${originAirportInfo.route} → ${data.airport}`, accessLink: buildGoogleDirectionsLink(trip.originCity, gatewayAirport), accessLabel: '出发地到机场路线' },
       { ...base, badge: '返程查询', type: 'flight', icon: Plane, number: '返程实时查询', date: returnDate, fromCity: returnCity, targetCity: trip.originCity, depart: returnDate, arrive: '按实时结果', duration: '按实时结果', from: returnData.airport || `${returnCity}机场`, to: originAirport, note: '返程国际航班 · 行李额以票规为准', direct: '打开后按价格排序' },
     ]
   }
 
   if (mode === 'plane' || !domestic) {
     return [
-      { ...base, badge: '去程最低花销查询', type: 'flight', icon: Plane, number: '携程实时查询', date: trip.startDate, depart: trip.startDate, arrive: '按实时结果', duration: '按实时结果', from: originAirport, to: data.airport, note: '经济舱 · 行李额以票规为准', direct: '打开后按价格排序' },
+      { ...base, badge: '去程最低花销', type: 'flight', icon: Plane, number: '携程实时查询', date: trip.startDate, depart: trip.startDate, arrive: '按实时结果', duration: '按实时结果', from: originAirport, to: data.airport, note: `${originAirportInfo.note} · 行李额以票规为准`, direct: '打开后按价格排序', accessLink: buildGoogleDirectionsLink(trip.originCity, originAirport), accessLabel: '出发地到机场路线', via: originAirportInfo.route },
       { ...base, badge: '返程查询', type: 'flight', icon: Plane, number: '返程实时查询', date: returnDate, fromCity: returnCity, targetCity: trip.originCity, depart: returnDate, arrive: '按实时结果', duration: '按实时结果', from: returnData.airport || `${returnCity}机场`, to: originAirport, note: '返程航班 · 行李额以票规为准', direct: '打开后按价格排序' },
     ]
   }
 
   if (mode === 'highspeed') {
     return [
-      { ...base, badge: '去程最低花销查询', type: 'highspeed', icon: TrainFront, number: '携程实时查询', date: trip.startDate, depart: trip.startDate, arrive: '按实时结果', duration: '按实时结果', from: originStation, to: data.station, note: '二等座 · 实时余票', direct: '打开后按价格排序' },
+      { ...base, badge: '去程最低花销', type: 'highspeed', icon: TrainFront, number: '携程实时查询', date: trip.startDate, depart: trip.startDate, arrive: '按实时结果', duration: '按实时结果', from: originStation, to: data.station, note: '二等座 · 实时余票', direct: '打开后按价格排序' },
       { ...base, badge: '返程查询', type: 'highspeed', icon: TrainFront, number: '返程实时查询', date: returnDate, fromCity: returnCity, targetCity: trip.originCity, depart: returnDate, arrive: '按实时结果', duration: '按实时结果', from: returnData.station, to: originStation, note: '返程二等座 · 实时余票', direct: '打开后按价格排序' },
     ]
   }
 
   if (mode === 'train') {
     return [
-      { ...base, badge: '去程最低花销查询', type: 'train', icon: TrainFront, number: '携程实时查询', date: trip.startDate, depart: trip.startDate, arrive: '按实时结果', duration: '按实时结果', from: originStation, to: data.station, note: '硬卧/硬座 · 实时余票', direct: '打开后按价格排序' },
+      { ...base, badge: '去程最低花销', type: 'train', icon: TrainFront, number: '携程实时查询', date: trip.startDate, depart: trip.startDate, arrive: '按实时结果', duration: '按实时结果', from: originStation, to: data.station, note: '硬卧/硬座 · 实时余票', direct: '打开后按价格排序' },
       { ...base, badge: '返程查询', type: 'train', icon: TrainFront, number: '返程实时查询', date: returnDate, fromCity: returnCity, targetCity: trip.originCity, depart: returnDate, arrive: '按实时结果', duration: '按实时结果', from: returnData.station, to: originStation, note: '返程火车票 · 实时余票', direct: '打开后按价格排序' },
     ]
   }
 
   return [
-    { ...base, badge: '去程最低花销查询', type: 'metro', icon: TramFront, number: '携程实时查询', date: trip.startDate, depart: trip.startDate, arrive: '按实时结果', duration: '按实时结果', from: originStation, to: data.station, note: '地铁接驳 + 城际铁路', direct: '打开后按价格排序' },
+    { ...base, badge: '去程最低花销', type: 'metro', icon: TramFront, number: '携程实时查询', date: trip.startDate, depart: trip.startDate, arrive: '按实时结果', duration: '按实时结果', from: originStation, to: data.station, note: '地铁接驳 + 城际铁路', direct: '打开后按价格排序' },
     { ...base, badge: '返程查询', type: 'metro', icon: TramFront, number: '返程实时查询', date: returnDate, fromCity: returnCity, targetCity: trip.originCity, depart: returnDate, arrive: '按实时结果', duration: '按实时结果', from: returnData.station, to: originStation, note: '返程城际/地铁接驳', direct: '打开后按价格排序' },
   ]
 }
@@ -572,18 +626,6 @@ function buildIntercityNote(from, to, region, returnTrip = false) {
 
 function buildTransferPlans(trip, destinations, stops) {
   const plans = []
-  const firstCity = destinations[0]
-  const firstData = getDestinationData(firstCity)
-  plans.push({
-    label: '出发抵达',
-    date: trip.startDate,
-    route: `${trip.originCity} → ${firstCity}`,
-    method: trip.transportMode === 'plane' || trip.region !== '国内' ? '携程机票实时查询' : `${transportLabel(trip.transportMode)}实时查询`,
-    detail: `${airports[trip.originCity] || stations[trip.originCity] || trip.originCity} → ${firstData.airport || firstData.station}，打开后按价格排序选择最低花销方案。`,
-    link: buildCtripLegLink(trip.originCity, firstCity, trip.startDate, trip.transportMode === 'plane' || trip.region !== '国内' ? 'flight' : 'train'),
-    linkLabel: '打开携程实时查询',
-  })
-
   stops.slice(1).forEach((stop, index) => {
     const fromCity = stops[index].city
     const date = addDays(trip.startDate, stop.startOffset)
@@ -599,19 +641,15 @@ function buildTransferPlans(trip, destinations, stops) {
     })
   })
 
-  const finalCity = destinations[destinations.length - 1]
-  const returnDate = addDays(trip.startDate, trip.days)
-  plans.push({
-    label: '返回出发地',
-    date: returnDate,
-    route: `${finalCity} → ${trip.originCity}`,
-    method: trip.region === '国内' && trip.transportMode !== 'plane' ? `${transportLabel(trip.transportMode)}返程查询` : '返程机票实时查询',
-    detail: buildIntercityNote(finalCity, trip.originCity, trip.region, true),
-    link: buildCtripLegLink(finalCity, trip.originCity, returnDate, trip.region === '国内' && trip.transportMode !== 'plane' ? 'train' : 'flight'),
-    linkLabel: '打开携程实时查询',
-  })
-
   return plans
+}
+
+function shiftTime(time = '11:30', minutes = 0) {
+  const [hour = 0, minute = 0] = time.split(':').map(Number)
+  const total = Math.max(0, Math.min(23 * 60 + 50, hour * 60 + minute + minutes))
+  const nextHour = String(Math.floor(total / 60)).padStart(2, '0')
+  const nextMinute = String(total % 60).padStart(2, '0')
+  return `${nextHour}:${nextMinute}`
 }
 
 function buildItinerary(trip, destinations) {
@@ -622,21 +660,32 @@ function buildItinerary(trip, destinations) {
     Array.from({ length: stop.days }, (_, localIndex) => {
       const attractionA = stop.data.attractions[(localIndex * 2) % stop.data.attractions.length]
       const attractionB = stop.data.attractions[(localIndex * 2 + 1) % stop.data.attractions.length]
+      const attractionC = stop.data.attractions[(localIndex * 2 + 2) % stop.data.attractions.length]
       const food = stop.data.foods[localIndex % stop.data.foods.length]
+      const dinner = stop.data.foods[(localIndex + 1) % stop.data.foods.length]
       const previousCity = stopIndex > 0 && localIndex === 0 ? stops[stopIndex - 1].city : null
+      const isFirstDay = dayCursor === 0
+      const isLastDay = dayCursor === trip.days - 1
+      const startTime = previousCity ? '10:30' : isFirstDay ? trip.arrivalTime || '11:30' : '09:20'
+      const items = [
+        { time: startTime, title: previousCity ? `${previousCity} 前往 ${stop.city}` : isFirstDay ? `${stop.city} 抵达与酒店放行李` : attractionA, type: previousCity || isFirstDay ? '交通/入住' : '景点', note: previousCity ? buildIntercityNote(previousCity, stop.city, trip.region) : isFirstDay ? `预计 ${startTime} 抵达，先用公共交通到酒店放行李，再从住宿片区开始玩` : '优先公共交通到达，单段步行尽量控制在 12 分钟内' },
+        { time: shiftTime(startTime, isFirstDay ? 90 : 110), title: food, type: '美食', note: `安排在 ${attractionA} 或住宿片区附近，先吃再进入密集游玩区` },
+        { time: shiftTime(startTime, isFirstDay ? 210 : 250), title: isFirstDay ? attractionA : attractionB, type: '景点', note: `搭乘 ${stop.data.transit}，按花销最低原则选择公交/地铁优先` },
+        { time: shiftTime(startTime, isFirstDay ? 330 : 390), title: trip.styles.includes('买买买') ? `${stop.city} 商圈顺路补给` : attractionC, type: trip.styles.includes('买买买') ? '商圈' : '景点', note: trip.styles.includes('买买买') ? '放在回酒店方向，避免购物后继续远距离移动' : '作为同片区补充点，天气不好时可替换为室内展馆或咖啡店' },
+        { time: '18:20', title: dinner, type: '晚餐', note: '安排在酒店或当天最后一个景点附近，减少夜间换乘' },
+        { time: '20:10', title: `${stop.city} 住宿周边`, type: '夜晚', note: '晚餐后回到住宿附近，避免跨区折返' },
+      ]
+      if (isLastDay) {
+        items.push({ time: '21:10', title: `${stop.city} 酒店 → 机场`, type: '离境接驳', note: '行程结束后，从已选择酒店出发去机场，优先机场铁路、机场巴士或公共交通换乘少的路线' })
+      }
       days.push({
         day: dayCursor + 1,
         date: formatDate(trip.startDate, dayCursor),
         city: stop.city,
-        title: previousCity ? `低成本转场到 ${stop.city}` : dayCursor === 0 ? '抵达与轻松入场' : `${stop.data.tag} · 顺路漫游`,
+        title: previousCity ? `低成本转场到 ${stop.city}` : isFirstDay ? '按到达时间轻松入场' : `${stop.data.tag} · 顺路漫游`,
         transit: stop.data.transit,
         transferNote: buildIntercityNote(previousCity, stop.city, trip.region),
-        items: [
-          { time: previousCity ? '09:00' : dayCursor === 0 ? '11:30' : '09:30', title: previousCity ? `${previousCity} 前往 ${stop.city}` : attractionA, type: previousCity ? '城市转场' : '景点', note: previousCity ? buildIntercityNote(previousCity, stop.city, trip.region) : '优先公共交通到达，单段步行尽量控制在 12 分钟内' },
-          { time: '12:40', title: food, type: '美食', note: `安排在 ${attractionA} 或住宿片区附近，减少额外绕路` },
-          { time: '14:30', title: attractionB, type: '景点', note: `搭乘 ${stop.data.transit}，按花销最低原则选择公交/地铁优先` },
-          { time: '18:10', title: `${stop.city} 住宿周边`, type: '夜晚', note: '晚餐后回到住宿附近，避免跨区折返' },
-        ],
+        items,
       })
       dayCursor += 1
       return null
@@ -661,7 +710,7 @@ function Recommendation({ profile, trip, onRestart, onEdit }) {
   const fallbackHotel = activeHotelOptions.find((hotel) => hotel.tier === '最贴合预算') || activeHotelOptions[0]
   const activeCityHotel = selectedHotels[activeDayPlan.city] || fallbackHotel
   const activeHotelOrigin = `${activeCityHotel.name} ${activeCityHotel.address}`
-  const firstDailyStop = activeDayPlan.items.find((item) => item.type !== '城市转场' && item.type !== '夜晚')?.title || activeDayPlan.city
+  const firstDailyStop = activeDayPlan.items.find((item) => !['交通/入住', '夜晚', '离境接驳'].includes(item.type))?.title || activeDayPlan.city
   const firstLegLink = buildGoogleDirectionsLink(activeHotelOrigin, `${firstDailyStop} ${activeDayPlan.city}`)
   const getTimelineItem = (item) => {
     if (item.type === '夜晚') {
@@ -673,10 +722,20 @@ function Recommendation({ profile, trip, onRestart, onEdit }) {
         linkLabel: '查看住宿位置',
       }
     }
+    if (item.type === '离境接驳') {
+      const airport = getDestinationData(activeDayPlan.city).airport || getNearestAirport(activeDayPlan.city).airport
+      return {
+        ...item,
+        title: `${activeCityHotel.name} → ${airport}`,
+        note: `从 ${activeCityHotel.name} 出发去 ${airport}，优先公共交通、机场铁路或机场巴士，打开 Google Maps 后按实时换乘选择。`,
+        link: buildGoogleDirectionsLink(activeHotelOrigin, airport),
+        linkLabel: '酒店去机场路线',
+      }
+    }
     return {
       ...item,
-      link: item.type === '城市转场' ? buildGoogleDirectionsLink(activeHotelOrigin, `${activeDayPlan.city} ${getDestinationData(activeDayPlan.city).station}`) : buildGooglePlaceLink(activeDayPlan.city, item.title),
-      linkLabel: item.type === '城市转场' ? '查看转场路线' : 'Google 地图',
+      link: item.type === '交通/入住' ? buildGoogleDirectionsLink(activeHotelOrigin, `${activeDayPlan.city} ${getDestinationData(activeDayPlan.city).station}`) : buildGooglePlaceLink(activeDayPlan.city, item.title),
+      linkLabel: item.type === '交通/入住' ? '查看交通路线' : 'Google 地图',
     }
   }
 
@@ -692,14 +751,17 @@ function Recommendation({ profile, trip, onRestart, onEdit }) {
           <div className="trip-facts"><span><CalendarDays size={16} />{trip.startDate}</span><span><MapPin size={16} />{trip.originCity} → {destinationText}</span><span><TrainFront size={16} />优先 {transportLabel(trip.transportMode)}</span><span><BedDouble size={16} />¥{trip.budget}/晚</span></div>
         </div>
         <div className="result-art">
-          <div className="result-art-frame"><img src={primaryData.image} alt={`${destinations[0]}旅行主题插画`} /></div>
-          <div className="result-stamp"><span>ccc recommends</span></div>
+          <div className="route-orb" aria-hidden="true">
+            <span>{destinations.length}</span>
+            <i />
+          </div>
+          <div className="result-stamp"><span>ccc recommends</span><strong>{transportLabel(trip.transportMode)} · {trip.arrivalTime}</strong></div>
         </div>
       </section>
 
       <section className="content-band route-band">
         <div className="shell section-shell">
-          <div className="section-heading"><div><span>01 · MASTER ROUTE</span><h2>先定每一站待多久</h2></div><p>按照总天数把城市拆成停留段，再把出发、城市转场和返程都放进同一个方案里。</p></div>
+          <div className="section-heading"><div><span>01 · MASTER ROUTE</span><h2>先定每一站待多久</h2></div><p>按照总天数把城市拆成停留段；多目的地时，这里只保留城市之间的转场，去程和返程统一在下一部分查询。</p></div>
           <div className="stay-plan-grid">
             {stops.map((stop, index) => (
               <article className="stay-plan-card" key={stop.city}>
@@ -711,6 +773,7 @@ function Recommendation({ profile, trip, onRestart, onEdit }) {
             ))}
           </div>
           <div className="transfer-plan-list">
+            {transferPlans.length === 0 && <article className="transfer-plan-card transfer-plan-card--quiet"><div><span>NO TRANSFER</span><h3>单一目的地</h3></div><p><Clock3 size={16} />本次不需要城市转场</p><small>去程与返程请看下一部分，行程内交通会在每日路线中按酒店位置安排。</small></article>}
             {transferPlans.map((plan, index) => (
               <article className="transfer-plan-card" key={`${plan.route}-${plan.date}`}>
                 <div><span>{String(index + 1).padStart(2, '0')} · {plan.label}</span><h3>{plan.route}</h3></div>
@@ -725,7 +788,7 @@ function Recommendation({ profile, trip, onRestart, onEdit }) {
 
       <section className="content-band transport-band">
         <div className="shell section-shell">
-          <div className="section-heading"><div><span>02 · CTRIP LIVE</span><h2>{transportLabel(trip.transportMode)}实时查询</h2></div><p>点击会进入携程查询列表页，并带上出发地、目的地和出发日期。若携程临时改版，请在页面顶部确认这三个条件。</p></div>
+          <div className="section-heading"><div><span>02 · GO & RETURN</span><h2>去程与返程查询</h2></div><p>这里只保留最低花销去程和返程入口；携程页面会带上出发地、目的地和日期，国外城市间移动在总路线里使用 Google Maps。</p></div>
           <div className="transport-grid">
             {transport.map((item) => {
               const Icon = item.icon
@@ -736,7 +799,7 @@ function Recommendation({ profile, trip, onRestart, onEdit }) {
                 <div className="time-line"><div><strong>{item.depart}</strong><span>{item.from}</span></div><div className="duration"><span>{item.duration}</span><i /><small>{item.direct}</small></div><div><strong>{item.arrive}</strong><span>{item.to}</span></div></div>
                 {item.via && <p className="baggage-note">组合路线：{item.via}</p>}
                 {(item.type === 'flight' || item.type === 'combo') && <p className="baggage-note">托运行李额、航班号、退改签和实时票价请以携程查询结果为准。</p>}
-                <div className="transport-footer"><strong>携程实时价</strong><a href={buildCtripTransportLink(item, trip)} target="_blank" rel="noreferrer">去携程查看 <ExternalLink size={15} /></a></div>
+                <div className="transport-footer"><strong>实时查询</strong><span>{item.accessLink && <a href={item.accessLink} target="_blank" rel="noreferrer">{item.accessLabel} <ExternalLink size={15} /></a>}<a href={buildCtripTransportLink(item, trip)} target="_blank" rel="noreferrer">去携程查看 <ExternalLink size={15} /></a></span></div>
               </article>
             })}
           </div>
@@ -749,12 +812,14 @@ function Recommendation({ profile, trip, onRestart, onEdit }) {
           <div className="city-discover-stack">
             {destinations.map((city) => {
               const data = getDestinationData(city)
+              const stop = stops.find((item) => item.city === city)
+              const checkIn = addDays(trip.startDate, stop?.startOffset || 0)
+              const checkOut = addDays(trip.startDate, (stop?.startOffset || 0) + (stop?.days || 1))
               const hotelOptions = buildHotelOptions(city, trip)
               return (
                 <div className="discover-layout" key={city}>
                   <article className="hotel-feature">
-                    <div className="hotel-image"><img src={data.image} alt={`${city}住宿主题插画`} /><span>{city}</span></div>
-                    <div className="hotel-copy"><span className="recommend-badge"><Hotel size={14} /> 备选住宿</span><h3>{city} 住宿候选</h3><p>按照入住 {trip.startDate}，退房 {addDays(trip.startDate, trip.days)}，每晚 ¥{trip.budget} 的预算档位筛选。先选一间作为路线起点，再去 Google 地图查看位置、路线和周边评价。</p><div className="hotel-options">{hotelOptions.map((hotel) => <article className={selectedHotels[city]?.name === hotel.name ? 'hotel-option-card selected' : 'hotel-option-card'} key={hotel.name}><span>{hotel.tier}</span><strong>{hotel.name}</strong><small><MapPin size={14} /> {hotel.address}</small><small>距{hotel.station} {hotel.stationDistance} · 距{hotel.district} {hotel.districtDistance}</small><small>{hotel.reason}</small><div className="hotel-option-actions"><button type="button" onClick={() => setSelectedHotels({ ...selectedHotels, [city]: hotel })}>选为住宿</button><a href={hotel.link} target="_blank" rel="noreferrer">Google 地图 <ExternalLink size={13} /></a></div></article>)}</div></div>
+                    <div className="hotel-copy"><span className="recommend-badge"><Hotel size={14} /> 备选住宿</span><h3>{city} 住宿候选</h3><p>按照入住 {checkIn}，退房 {checkOut}，停留 {stop?.days || 1} 晚，每晚 ¥{trip.budget} 的预算档位筛选。先选一间作为路线起点，再去 Google 地图查看位置、路线和周边评价。</p><div className="hotel-options">{hotelOptions.map((hotel) => <article className={selectedHotels[city]?.name === hotel.name ? 'hotel-option-card selected' : 'hotel-option-card'} key={hotel.name}><span>{hotel.tier}</span><strong>{hotel.name}</strong><small><MapPin size={14} /> {hotel.address}</small><small>距{hotel.station} {hotel.stationDistance} · 距{hotel.district} {hotel.districtDistance}</small><small>{hotel.reason}</small><div className="hotel-option-actions"><button type="button" onClick={() => setSelectedHotels({ ...selectedHotels, [city]: hotel })}>选为住宿</button><a href={hotel.link} target="_blank" rel="noreferrer">Google 地图 <ExternalLink size={13} /></a></div></article>)}</div></div>
                   </article>
                   <div className="recommend-list">
                     <div className="recommend-column"><div className="mini-heading"><Camera size={18} /><span>{city} 值得去</span></div>{data.attractions.map((item, index) => <a className="list-item list-item--link" href={buildGooglePlaceLink(city, item)} target="_blank" rel="noreferrer" key={item}><span>{String(index + 1).padStart(2, '0')}</span><strong>{item}<ExternalLink size={13} /></strong><small>{trip.styles.includes('爱拍照') ? '适合拍照 · 已按光线排时段' : '高分推荐 · 公交可达'} · Google 地图</small></a>)}</div>
@@ -796,10 +861,99 @@ function Recommendation({ profile, trip, onRestart, onEdit }) {
   )
 }
 
+function CccWorld({ onBack }) {
+  const [role, setRole] = useState(travelRoles[0])
+  const [mapOpen, setMapOpen] = useState(false)
+  const [activePlace, setActivePlace] = useState(cccVisitedPlaces[0])
+  const [photos, setPhotos] = useState({})
+  const [rotation, setRotation] = useState({ x: -16, y: -28 })
+  const dragRef = useRef({ active: false, moved: false, x: 0, y: 0 })
+  const visiblePlaces = cccVisitedPlaces.filter((place) => place.roles.includes(role))
+
+  const handlePointerDown = (event) => {
+    dragRef.current = { active: true, moved: false, x: event.clientX, y: event.clientY }
+    event.currentTarget.setPointerCapture(event.pointerId)
+  }
+
+  const handlePointerMove = (event) => {
+    if (!dragRef.current.active) return
+    const dx = event.clientX - dragRef.current.x
+    const dy = event.clientY - dragRef.current.y
+    dragRef.current = { active: true, moved: dragRef.current.moved || Math.abs(dx) + Math.abs(dy) > 4, x: event.clientX, y: event.clientY }
+    setRotation((current) => ({ x: Math.max(-50, Math.min(50, current.x - dy * 0.18)), y: current.y + dx * 0.22 }))
+  }
+
+  const handlePhoto = (event) => {
+    const file = event.target.files?.[0]
+    if (!file || !activePlace) return
+    const reader = new FileReader()
+    reader.onload = () => setPhotos((current) => ({ ...current, [activePlace.id]: reader.result }))
+    reader.readAsDataURL(file)
+  }
+
+  return (
+    <main className="world-page">
+      <header className="world-header shell"><Brand /><button className="text-button" onClick={onBack}>返回首页 <ArrowLeft size={15} /></button></header>
+      <section className="world-shell shell">
+        <div className="world-copy">
+          <p className="eyebrow">CCC MEMORY MAP · 002</p>
+          <h1>ccc到过的地方</h1>
+          <p>先选择你是谁，再看和 ccc 一起被点亮的地点。这个版本先做可运行的基础体验，后面可以继续替换成你的真实照片和素材。</p>
+          <div className="role-grid" aria-label="选择角色">
+            {travelRoles.map((item) => <button type="button" className={role === item ? 'selected' : ''} key={item} onClick={() => { setRole(item); setActivePlace(cccVisitedPlaces.find((place) => place.roles.includes(item)) || cccVisitedPlaces[0]) }}>{item}</button>)}
+          </div>
+        </div>
+
+        {!mapOpen ? (
+          <button
+            type="button"
+            className="globe-stage"
+            onClick={() => { if (!dragRef.current.moved) setMapOpen(true) }}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={() => { dragRef.current.active = false }}
+            onPointerLeave={() => { dragRef.current.active = false }}
+            aria-label="打开世界地图"
+          >
+            <div className="tech-globe" style={{ transform: `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)` }}>
+              <span className="globe-grid globe-grid--lat" />
+              <span className="globe-grid globe-grid--lng" />
+              {visiblePlaces.map((place) => <i key={place.id} className="globe-pin" style={{ left: `${place.globeX}%`, top: `${place.globeY}%` }} />)}
+            </div>
+            <span className="globe-hint">拖动旋转 · 点击打开地图</span>
+          </button>
+        ) : (
+          <div className="memory-map">
+            <div className="world-map-surface" aria-label="世界地图">
+              {visiblePlaces.map((place) => (
+                <button type="button" key={place.id} className={activePlace?.id === place.id ? 'map-pin active' : 'map-pin'} style={{ left: `${place.x}%`, top: `${place.y}%` }} onClick={() => setActivePlace(place)}>
+                  <span>{place.name}</span>
+                </button>
+              ))}
+            </div>
+            <aside className="memory-panel glass-panel">
+              <span className="recommend-badge"><MapPin size={14} /> {role} 和 ccc</span>
+              <h2>{activePlace?.name}</h2>
+              <p>{activePlace?.date}</p>
+              <small>{activePlace?.memory}</small>
+              <label className="upload-tile">
+                <ImagePlus size={18} />
+                <span>上传这里的照片</span>
+                <input type="file" accept="image/*" onChange={handlePhoto} />
+              </label>
+              {photos[activePlace?.id] && <img className="memory-photo" src={photos[activePlace.id]} alt={`${activePlace.name} 照片记录`} />}
+            </aside>
+          </div>
+        )}
+      </section>
+    </main>
+  )
+}
+
 export default function App() {
   const [screen, setScreen] = useState('welcome')
   const [profile, setProfile] = useState({ name: '', gender: '', constellation: '', relation: '' })
-  const [trip, setTrip] = useState({ originProvince: '上海', originCity: '上海', region: '日本', destinations: ['东京'], startDate: today, days: 4, transportMode: 'plane', styles: ['爱拍照', '吃美食'], budget: 900 })
+  const [trip, setTrip] = useState({ originProvince: '上海', originCity: '上海', region: '日本', destinations: ['东京'], startDate: today, arrivalTime: '11:30', days: 4, transportMode: 'plane', styles: ['爱拍照', '吃美食'], budget: 900 })
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
@@ -816,7 +970,8 @@ export default function App() {
       extraScale={1.12}
     >
       <div className="app">
-        {screen === 'welcome' && <Welcome onStart={() => setScreen('profile')} />}
+        {screen === 'welcome' && <Welcome onStart={() => setScreen('profile')} onWorld={() => setScreen('world')} />}
+        {screen === 'world' && <CccWorld onBack={() => setScreen('welcome')} />}
         {screen === 'profile' && <Profile profile={profile} setProfile={setProfile} onBack={() => setScreen('welcome')} onNext={() => setScreen('planner')} />}
         {screen === 'planner' && <Planner profile={profile} trip={trip} setTrip={setTrip} onBack={() => setScreen('profile')} onGenerate={() => { setScreen('result'); window.scrollTo(0, 0) }} />}
         {screen === 'result' && <Recommendation profile={profile} trip={trip} onEdit={() => { setScreen('planner'); window.scrollTo(0, 0) }} onRestart={() => { setScreen('welcome'); window.scrollTo(0, 0) }} />}
