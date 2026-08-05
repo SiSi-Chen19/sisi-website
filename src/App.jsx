@@ -30,6 +30,7 @@ import {
 } from 'lucide-react'
 import ClickSpark from './ClickSpark'
 import CurvedLoop from './CurvedLoop'
+import SplitText from './SplitText'
 
 const originRegions = {
   上海: ['上海'],
@@ -223,6 +224,28 @@ const nearestAirports = {
   廊坊: { airport: '北京大兴国际机场', route: '廊坊站 → 大兴机场线/城际 → 北京大兴机场', note: '廊坊无民航机场，优先北京大兴' },
 }
 
+const directAirportCities = {
+  石家庄: '石家庄正定国际机场', 唐山: '唐山三女河机场', 秦皇岛: '秦皇岛北戴河机场', 邯郸: '邯郸机场', 承德: '承德普宁机场',
+  太原: '太原武宿国际机场', 大同: '大同云冈机场', 长治: '长治王村机场', 运城: '运城张孝机场', 临汾: '临汾尧都机场',
+  沈阳: '沈阳桃仙国际机场', 大连: '大连周水子国际机场', 丹东: '丹东浪头机场', 锦州: '锦州湾机场', 营口: '营口兰旗机场',
+  长春: '长春龙嘉国际机场', 吉林: '长春龙嘉国际机场', 延边: '延吉朝阳川国际机场',
+  哈尔滨: '哈尔滨太平国际机场', 齐齐哈尔: '齐齐哈尔三家子机场', 牡丹江: '牡丹江海浪机场', 大庆: '大庆萨尔图机场',
+  合肥: '合肥新桥国际机场', 黄山: '黄山屯溪国际机场', 安庆: '安庆天柱山机场', 阜阳: '阜阳西关机场',
+  泉州: '泉州晋江国际机场', 莆田: '泉州晋江国际机场', 南昌: '南昌昌北国际机场', 九江: '南昌昌北国际机场', 赣州: '赣州黄金机场',
+  济南: '济南遥墙国际机场', 烟台: '烟台蓬莱国际机场', 威海: '威海大水泊机场', 日照: '日照山字河机场', 临沂: '临沂启阳机场',
+  郑州: '郑州新郑国际机场', 洛阳: '洛阳北郊机场', 南阳: '南阳姜营机场',
+  宜昌: '宜昌三峡机场', 襄阳: '襄阳刘集机场', 恩施: '恩施许家坪机场',
+  张家界: '张家界荷花国际机场', 岳阳: '岳阳三荷机场', 常德: '常德桃花源机场',
+  湛江: '湛江吴川机场', 梅州: '梅州梅县机场', 汕头: '揭阳潮汕国际机场', 潮州: '揭阳潮汕国际机场', 揭阳: '揭阳潮汕国际机场',
+  贵阳: '贵阳龙洞堡国际机场', 遵义: '遵义新舟机场', 铜仁: '铜仁凤凰机场',
+  昭通: '昭通机场', 保山: '保山云瑞机场', 西双版纳: '西双版纳嘎洒国际机场', 迪庆: '迪庆香格里拉机场',
+  兰州: '兰州中川国际机场', 天水: '天水麦积山机场', 张掖: '张掖甘州机场', 敦煌: '敦煌莫高国际机场',
+  西宁: '西宁曹家堡国际机场', 呼和浩特: '呼和浩特白塔国际机场', 包头: '包头东河机场', 鄂尔多斯: '鄂尔多斯伊金霍洛国际机场',
+  南宁: '南宁吴圩国际机场', 桂林: '桂林两江国际机场', 北海: '北海福成机场', 柳州: '柳州白莲机场',
+  拉萨: '拉萨贡嘎机场', 林芝: '林芝米林机场', 银川: '银川河东国际机场', 中卫: '中卫沙坡头机场',
+  乌鲁木齐: '乌鲁木齐地窝堡国际机场', 喀什: '喀什徕宁国际机场', 伊犁: '伊宁机场', 阿勒泰: '阿勒泰雪都机场',
+}
+
 const provinceHubAirports = {
   河北: '石家庄正定国际机场', 山西: '太原武宿国际机场', 辽宁: '沈阳桃仙国际机场', 吉林: '长春龙嘉国际机场', 黑龙江: '哈尔滨太平国际机场',
   江苏: '南京禄口国际机场', 浙江: '杭州萧山国际机场', 安徽: '合肥新桥国际机场', 福建: '福州长乐国际机场', 江西: '南昌昌北国际机场',
@@ -244,9 +267,17 @@ const cityCodes = {
   成都: 'CTU', 重庆: 'CKG', 武汉: 'WUH', 厦门: 'XMN', 福州: 'FOC', 西安: 'SIA', 长沙: 'CSX', 青岛: 'TAO', 昆明: 'KMG',
   大理: 'DLU', 丽江: 'LJG', 三亚: 'SYX', 海口: 'HAK', 东京: 'TYO', 横滨: 'TYO', 京都: 'KIX', 大阪: 'OSA', 札幌: 'SPK', 小樽: 'SPK', 福冈: 'FUK',
   首尔: 'SEL', 釜山: 'PUS', 济州岛: 'CJU',
-  天津: 'TSN', 石家庄: 'SJW', 太原: 'TYN', 沈阳: 'SHE', 大连: 'DLC', 长春: 'CGQ', 哈尔滨: 'HRB', 合肥: 'HFE', 南昌: 'KHN',
+  天津: 'TSN', 石家庄: 'SJW', 唐山: 'TVS', 秦皇岛: 'BPE', 邯郸: 'HDG', 承德: 'CDE', 太原: 'TYN', 大同: 'DAT', 长治: 'CIH',
+  运城: 'YCU', 临汾: 'LFQ', 沈阳: 'SHE', 大连: 'DLC', 丹东: 'DDG', 锦州: 'JNZ', 营口: 'YKH', 长春: 'CGQ', 吉林: 'CGQ',
+  延边: 'YNJ', 哈尔滨: 'HRB', 齐齐哈尔: 'NDG', 牡丹江: 'MDG', 大庆: 'DQA', 合肥: 'HFE', 黄山: 'TXN', 安庆: 'AQG',
+  阜阳: 'FUG', 泉州: 'JJN', 莆田: 'JJN', 南昌: 'KHN', 九江: 'KHN', 赣州: 'KOW', 义乌: 'YIW', 金华: 'YIW',
   济南: 'TNA', 郑州: 'CGO', 贵阳: 'KWE', 兰州: 'LHW', 西宁: 'XNN', 呼和浩特: 'HET', 南宁: 'NNG', 拉萨: 'LXA', 银川: 'INC',
-  乌鲁木齐: 'URC', 香港: 'HKG', 澳门: 'MFM', 名古屋: 'NGO', 冲绳: 'OKA', 广岛: 'HIJ', 熊本: 'KMJ', 长崎: 'NGS',
+  乌鲁木齐: 'URC', 烟台: 'YNT', 威海: 'WEH', 日照: 'RIZ', 临沂: 'LYI', 洛阳: 'LYA', 南阳: 'NNY', 宜昌: 'YIH',
+  襄阳: 'XFN', 恩施: 'ENH', 张家界: 'DYG', 岳阳: 'YYA', 常德: 'CGD', 湛江: 'ZHA', 梅州: 'MXZ', 汕头: 'SWA',
+  潮州: 'SWA', 揭阳: 'SWA', 遵义: 'ZYI', 铜仁: 'TEN', 昭通: 'ZAT', 保山: 'BSD', 西双版纳: 'JHG', 迪庆: 'DIG',
+  天水: 'THQ', 张掖: 'YZY', 敦煌: 'DNH', 包头: 'BAV', 鄂尔多斯: 'DSN', 桂林: 'KWL', 北海: 'BHY', 柳州: 'LZH',
+  林芝: 'LZY', 中卫: 'ZHY', 喀什: 'KHG', 伊犁: 'YIN', 阿勒泰: 'AAT',
+  香港: 'HKG', 澳门: 'MFM', 名古屋: 'NGO', 冲绳: 'OKA', 广岛: 'HIJ', 熊本: 'KMJ', 长崎: 'NGS',
   仁川: 'SEL', 大邱: 'TAE', 光州: 'KWJ',
 }
 
@@ -261,6 +292,19 @@ const airportSearchCities = {
   济南遥墙国际机场: '济南', 贵阳龙洞堡国际机场: '贵阳', 兰州中川国际机场: '兰州', 西宁曹家堡国际机场: '西宁',
   呼和浩特白塔国际机场: '呼和浩特', 南宁吴圩国际机场: '南宁', 拉萨贡嘎机场: '拉萨', 银川河东国际机场: '银川',
   乌鲁木齐地窝堡国际机场: '乌鲁木齐', 天津滨海国际机场: '天津', 香港国际机场: '香港', 澳门国际机场: '澳门',
+  义乌机场: '义乌', 唐山三女河机场: '唐山', 秦皇岛北戴河机场: '秦皇岛', 邯郸机场: '邯郸', 承德普宁机场: '承德',
+  大同云冈机场: '大同', 长治王村机场: '长治', 运城张孝机场: '运城', 临汾尧都机场: '临汾', 大连周水子国际机场: '大连',
+  丹东浪头机场: '丹东', 锦州湾机场: '锦州', 营口兰旗机场: '营口', 延吉朝阳川国际机场: '延边',
+  齐齐哈尔三家子机场: '齐齐哈尔', 牡丹江海浪机场: '牡丹江', 大庆萨尔图机场: '大庆', 黄山屯溪国际机场: '黄山',
+  安庆天柱山机场: '安庆', 阜阳西关机场: '阜阳', 泉州晋江国际机场: '泉州', 赣州黄金机场: '赣州', 烟台蓬莱国际机场: '烟台',
+  威海大水泊机场: '威海', 日照山字河机场: '日照', 临沂启阳机场: '临沂', 洛阳北郊机场: '洛阳', 南阳姜营机场: '南阳',
+  宜昌三峡机场: '宜昌', 襄阳刘集机场: '襄阳', 恩施许家坪机场: '恩施', 张家界荷花国际机场: '张家界',
+  岳阳三荷机场: '岳阳', 常德桃花源机场: '常德', 湛江吴川机场: '湛江', 梅州梅县机场: '梅州',
+  揭阳潮汕国际机场: '揭阳', 遵义新舟机场: '遵义', 铜仁凤凰机场: '铜仁', 昭通机场: '昭通', 保山云瑞机场: '保山',
+  西双版纳嘎洒国际机场: '西双版纳', 迪庆香格里拉机场: '迪庆', 天水麦积山机场: '天水', 张掖甘州机场: '张掖',
+  敦煌莫高国际机场: '敦煌', 包头东河机场: '包头', 鄂尔多斯伊金霍洛国际机场: '鄂尔多斯', 桂林两江国际机场: '桂林',
+  北海福成机场: '北海', 柳州白莲机场: '柳州', 林芝米林机场: '林芝', 中卫沙坡头机场: '中卫',
+  喀什徕宁国际机场: '喀什', 伊宁机场: '伊犁', 阿勒泰雪都机场: '阿勒泰',
   东京羽田机场: '东京', 关西国际机场: '大阪', 新千岁机场: '札幌', 福冈机场: '福冈', 仁川国际机场: '首尔', 金海国际机场: '釜山', 济州国际机场: '济州岛',
 }
 
@@ -510,6 +554,13 @@ function getNearestAirport(city) {
       note: '该城市有可用机场，出发前仍建议按航班价格比较同区域机场',
     }
   }
+  if (directAirportCities[city]) {
+    return {
+      airport: directAirportCities[city],
+      route: `${city}市区 → 公共交通/机场巴士/出租 → ${directAirportCities[city]}`,
+      note: `已为${city}匹配最近常用机场：${directAirportCities[city]}`,
+    }
+  }
   const province = Object.entries(originRegions).find(([, cities]) => cities.includes(city))?.[0]
   const hubAirport = provinceHubAirports[province]
   if (hubAirport) {
@@ -539,10 +590,12 @@ function buildCtripTransportLink(item, trip) {
   const toCity = item.ctripToCity || item.targetCity
   const fromCode = cityCodes[fromCity] || fromCity
   const toCode = cityCodes[toCity] || toCity
+  const fromCodePath = String(fromCode).toLowerCase()
+  const toCodePath = String(toCode).toLowerCase()
   const from = encodeURIComponent(fromCity)
   const to = encodeURIComponent(toCity)
   const date = item.date || trip.startDate
-  if (item.type === 'flight' || item.type === 'combo') return `https://flights.ctrip.com/online/list/oneway-${fromCode}-${toCode}?depdate=${date}&cabin=y_s&adult=1&child=0&infant=0&from=${from}&to=${to}&ddate=${date}&dcity=${fromCode}&acity=${toCode}`
+  if (item.type === 'flight' || item.type === 'combo') return `https://flights.ctrip.com/online/list/oneway-${fromCodePath}-${toCodePath}?depdate=${date}&cabin=y_s&adult=1&child=0&infant=0&from=${from}&to=${to}&ddate=${date}&dcity=${fromCode}&acity=${toCode}`
   return `https://trains.ctrip.com/webapp/train/list?ticketType=0&dStation=${from}&aStation=${to}&dDate=${date}`
 }
 
@@ -551,7 +604,9 @@ function buildCtripLegLink(fromCity, toCity, date, type = 'train') {
   const to = encodeURIComponent(toCity)
   const fromCode = cityCodes[fromCity] || fromCity
   const toCode = cityCodes[toCity] || toCity
-  if (type === 'flight') return `https://flights.ctrip.com/online/list/oneway-${fromCode}-${toCode}?depdate=${date}&cabin=y_s&adult=1&child=0&infant=0&from=${from}&to=${to}&ddate=${date}&dcity=${fromCode}&acity=${toCode}`
+  const fromCodePath = String(fromCode).toLowerCase()
+  const toCodePath = String(toCode).toLowerCase()
+  if (type === 'flight') return `https://flights.ctrip.com/online/list/oneway-${fromCodePath}-${toCodePath}?depdate=${date}&cabin=y_s&adult=1&child=0&infant=0&from=${from}&to=${to}&ddate=${date}&dcity=${fromCode}&acity=${toCode}`
   return `https://trains.ctrip.com/webapp/train/list?ticketType=0&dStation=${from}&aStation=${to}&dDate=${date}`
 }
 
@@ -793,7 +848,36 @@ function Recommendation({ profile, trip, onRestart, onEdit }) {
       <section className="result-hero shell">
         <div className="result-hero-copy">
           <p className="eyebrow">YOUR PERSONAL TRAVEL NOTE · 001</p>
-          <h1>{profile.name} 的<br /><em>{destinations[0]}</em>旅行计划</h1>
+          <div className="result-title" role="heading" aria-level="1" aria-label={`${profile.name} 的 ${destinations[0]}旅行计划`}>
+            <SplitText
+              tag="span"
+              text={`${profile.name} 的`}
+              className="result-title-line"
+              splitType="chars"
+              delay={34}
+              duration={0.78}
+              ease="back.out(1.35)"
+              from={{ opacity: 0, y: 76, rotateX: -70 }}
+              to={{ opacity: 1, y: 0, rotateX: 0 }}
+              threshold={0.1}
+              rootMargin="-60px"
+              textAlign="left"
+            />
+            <SplitText
+              tag="span"
+              text={`${destinations[0]}旅行计划`}
+              className="result-title-line result-title-line--accent"
+              splitType="chars"
+              delay={28}
+              duration={0.84}
+              ease="power4.out"
+              from={{ opacity: 0, y: 88, scale: 0.92 }}
+              to={{ opacity: 1, y: 0, scale: 1 }}
+              threshold={0.1}
+              rootMargin="-60px"
+              textAlign="left"
+            />
+          </div>
           <p>{relationCopy}<br />从 {trip.originCity} 出发的 {trip.days} 天，连续去 {destinationText}，少走路，也少走回头路。</p>
           <div className="trip-facts"><span><CalendarDays size={16} />{trip.startDate}</span><span><MapPin size={16} />{trip.originCity} → {destinationText}</span><span><TrainFront size={16} />优先 {transportLabel(trip.transportMode)}</span><span><BedDouble size={16} />¥{trip.budget}/晚</span></div>
           <div className="result-signal-grid" aria-label="计划摘要">

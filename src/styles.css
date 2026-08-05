@@ -961,19 +961,34 @@ video {
   color: #bc5475;
 }
 
-.result-hero-copy h1 {
+.result-title {
+  display: grid;
+  gap: 0;
+  max-width: 1280px;
   margin: 24px 0 28px;
   font-family: 'Playfair Display', 'Noto Sans SC', serif;
   font-size: clamp(72px, 8.4vw, 156px);
   font-weight: 600;
   line-height: 0.9;
   letter-spacing: 0;
-  max-width: 1180px;
+  perspective: 900px;
 }
 
-.result-hero-copy h1 em {
+.result-title-line {
+  display: block;
+  color: var(--ink);
+  transform-style: preserve-3d;
+}
+
+.result-title-line--accent {
   color: #e2638b;
   font-weight: 600;
+}
+
+.split-parent .split-char,
+.split-parent .split-word {
+  display: inline-block;
+  transform-origin: 50% 100%;
 }
 
 .result-hero-copy > p {
@@ -2377,7 +2392,7 @@ video {
     display: none;
   }
 
-  .result-hero-copy h1 {
+  .result-title {
     font-size: clamp(48px, 15vw, 70px);
   }
 
