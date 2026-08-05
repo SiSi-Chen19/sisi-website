@@ -30,6 +30,8 @@ import {
 } from 'lucide-react'
 import ClickSpark from './ClickSpark'
 import CurvedLoop from './CurvedLoop'
+import ElasticMesh from './ElasticMesh'
+import GradientWaves from './GradientWaves'
 import SplitText from './SplitText'
 
 const originRegions = {
@@ -322,6 +324,13 @@ const travelStyles = [
 
 const constellations = ['白羊座', '金牛座', '双子座', '巨蟹座', '狮子座', '处女座', '天秤座', '天蝎座', '射手座', '摩羯座', '水瓶座', '双鱼座']
 const travelRoles = ['点点', '饭田鱼', '蒸馍', '张葛']
+const randomHomepageBackgrounds = [
+  '/assets/random-bg/bg-1.jpg',
+  '/assets/random-bg/bg-2.jpg',
+  '/assets/random-bg/bg-3.jpg',
+  '/assets/random-bg/bg-4.jpg',
+  '/assets/random-bg/bg-5.jpg',
+]
 const cccVisitedPlaces = [
   { id: 'shanghai', name: '上海', x: 77, y: 43, globeX: 72, globeY: 42, date: '2024 春天', roles: ['点点', '饭田鱼'], memory: '一起在街区散步，把晚风和甜点都放进行程。' },
   { id: 'hangzhou', name: '杭州', x: 76, y: 45, globeX: 70, globeY: 45, date: '2024 夏天', roles: ['点点', '蒸馍'], memory: '湖边慢慢走，路线被阳光切成很柔软的几段。' },
@@ -345,12 +354,57 @@ function IconButton({ label, children, type = 'button', ...props }) {
   return <button type={type} className="icon-button" aria-label={label} title={label} {...props}>{children}</button>
 }
 
-function Welcome({ onStart, onWorld }) {
+function ElasticCursor() {
+  const cursorRef = useRef(null)
+
+  useEffect(() => {
+    const cursor = cursorRef.current
+    if (!cursor) return undefined
+    let targetX = window.innerWidth / 2
+    let targetY = window.innerHeight / 2
+    let x = targetX
+    let y = targetY
+    let raf = 0
+
+    const move = (event) => {
+      targetX = event.clientX
+      targetY = event.clientY
+    }
+
+    const frame = () => {
+      x += (targetX - x) * 0.16
+      y += (targetY - y) * 0.16
+      const dx = targetX - x
+      const dy = targetY - y
+      const stretch = Math.min(1.28, 1 + Math.hypot(dx, dy) / 900)
+      const rotate = Math.atan2(dy, dx) * (180 / Math.PI)
+      cursor.style.transform = `translate3d(${x - 52}px, ${y - 52}px, 0) rotate(${rotate}deg) scaleX(${stretch})`
+      raf = requestAnimationFrame(frame)
+    }
+
+    window.addEventListener('pointermove', move, { passive: true })
+    raf = requestAnimationFrame(frame)
+
+    return () => {
+      window.removeEventListener('pointermove', move)
+      cancelAnimationFrame(raf)
+    }
+  }, [])
+
   return (
-    <main className="welcome-page">
-      <video className="welcome-video" autoPlay muted loop playsInline poster="/assets/miracle.jpg">
-        <source src="/assets/castle.mp4" type="video/mp4" />
-      </video>
+    <div className="elastic-cursor" ref={cursorRef} aria-hidden="true">
+      <ElasticMesh color1="#f17fa3" color2="#7ecce4" gridOpacity={0.28} borderRadius={999} />
+    </div>
+  )
+}
+
+function Welcome({ onStart, onWorld }) {
+  const background = useMemo(() => randomHomepageBackgrounds[Math.floor(Math.random() * randomHomepageBackgrounds.length)], [])
+
+  return (
+    <main className="welcome-page" style={{ '--welcome-bg': `url(${background})` }}>
+      <div className="welcome-photo-bg" />
+      <GradientWaves className="welcome-waves" horizonColor="#7ecce4" waveColor="#f17fa3" crestColor="#fff4d0" opacity={0.3} speed={0.22} amplitude={1.35} waveScale={0.52} turbulence={12} />
       <div className="welcome-wash" />
       <header className="welcome-nav shell"><Brand inverse /><span className="edition">PERSONAL EDITION · 01</span></header>
       <section className="welcome-content shell">
@@ -1099,6 +1153,7 @@ export default function App() {
       extraScale={1.12}
     >
       <div className="app">
+        <ElasticCursor />
         {screen === 'welcome' && <Welcome onStart={() => setScreen('profile')} onWorld={() => setScreen('world')} />}
         {screen === 'world' && <CccWorld onBack={() => setScreen('welcome')} />}
         {screen === 'profile' && <Profile profile={profile} setProfile={setProfile} onBack={() => setScreen('welcome')} onNext={() => setScreen('planner')} />}
